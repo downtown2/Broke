@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registration Page</title>
+  <style>
+    /* CSS Variables for Consistent Styling */
+    :root {
+      --primary-color: #3498db;
+      --hover-color: #2980b9;
+      --active-color: #1c5980;
+      --error-color: #ff4b5c;
+      --background: black;
+      --container-bg: rgba(255, 255, 255, 0.1);
+      --input-bg: rgba(255, 255, 255, 0.2);
+      --input-focus-bg: rgba(255, 255, 255, 0.3);
+      --font-family: 'Poppins', sans-serif;
+    }
+
+    /* Global Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: var(--font-family);
+    }
+    body {
+      background: var(--background);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-top: 80px; /* Prevent content from overlapping fixed Home button */
+      position: relative;
+    }
+
+    /* Fixed Home Button at Top Left with Icon and No Scaling */
+    .home-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background-color: var(--primary-color);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      z-index: 1000;
+    }
+    .home-button:hover {
+      background-color: var(--hover-color);
+    }
+    .home-button:active {
+      background-color: var(--active-color);
+    }
+    .home-button:focus {
+      outline: 2px solid var(--primary-color);
+    }
+    /* Registration Container */
+    .container {
+      background: var(--container-bg);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 1.5rem;
+      color: #fff;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+      text-align: left;
+      position: relative;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      background: var(--input-bg);
+      color: white;
+    }
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      background: var(--input-focus-bg);
+      box-shadow: 0 0 5px var(--primary-color);
+    }
+    .error {
+      color: var(--error-color);
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+      display: none;
+    }
+    button {
+      width: 100%;
+      padding: 1rem;
+      background: var(--error-color);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #e04350;
+    }
+    button:focus {
+      outline: 2px solid var(--primary-color);
+    }
+    .password-requirements {
+      margin: 1rem 0;
+      padding: 0.5rem;
+      background: var(--input-bg);
+      border-radius: 5px;
+      text-align: left;
+    }
+    .password-requirements ul {
+      list-style: none;
+      padding-left: 1rem;
+    }
+    .requirement-met {
+      color: #28a745;
+    }
+    .requirement-unmet {
+      color: var(--error-color);
+    }
+    .checkbox-group {
+      text-align: left;
+      margin-bottom: 1rem;
+    }
+    .checkbox-group label {
+      font-weight: normal;
+      display: inline;
+    }
+    /* Helper Text (optional) */
+    .helper-text {
+      font-size: 0.8rem;
+      color: #ccc;
+      margin-top: 0.25rem;
+    }
+    /* Responsive Adjustments */
+    @media (max-width: 480px) {
+      .container {
+        width: 90%;
+        padding: 1.5rem;
+      }
+      .home-button {
+        padding: 8px 16px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Home Button with an Icon (Unicode Home symbol) -->
+  <a href="index.html" class="home-button" aria-label="Home">&#x1F3E0; Home</a>
+
+  <div class="container">
+    <h1>Create Account</h1>
+    <form id="registrationForm" novalidate>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username" 
+          required 
+          aria-required="true" 
+          placeholder="Enter your username" />
+        <div class="error" id="usernameError">Username is required</div>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          required 
+          aria-required="true" 
+          placeholder="example@mail.com" />
+        <div class="error" id="emailError">Please enter a valid email</div>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          required 
+          aria-required="true" 
+          placeholder="Enter a secure password" />
+        <div class="error" id="passwordError">Password does not meet requirements</div>
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input 
+          type="password" 
+          id="confirmPassword" 
+          name="confirmPassword" 
+          required 
+          aria-required="true" 
+          placeholder="Re-enter your password" />
+        <div class="error" id="confirmPasswordError">Passwords do not match</div>
+      </div>
+      <div class="password-requirements">
+        <strong>Password Requirements:</strong>
+        <ul>
+          <li id="length" class="requirement-unmet">Minimum 8 characters</li>
+          <li id="uppercase" class="requirement-unmet">At least one uppercase letter</li>
+          <li id="lowercase" class="requirement-unmet">At least one lowercase letter</li>
+          <li id="number" class="requirement-unmet">At least one number</li>
+          <li id="special" class="requirement-unmet">At least one special character</li>
+        </ul>
+      </div>
+      <!-- Checkbox to agree to follow directions -->
+      <div class="form-group checkbox-group">
+        <input 
+          type="checkbox" 
+          id="followDirections" 
+          name="followDirections" 
+          required 
+          aria-required="true" />
+        <label for="followDirections">I have read and will follow the directions</label>
+      </div>
+      <div class="form-group">
+        <button type="submit">Register</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Real-Time Password Validation
+    const passwordInput = document.getElementById('password');
+    const requirements = {
+      length: { test: (pw) => pw.length >= 8 },
+      uppercase: { test: (pw) => /[A-Z]/.test(pw) },
+      lowercase: { test: (pw) => /[a-z]/.test(pw) },
+      number: { test: (pw) => /[0-9]/.test(pw) },
+      special: { test: (pw) => /[!@#$%^&*(),.?":{}|<>]/.test(pw) }
+    };
+
+    passwordInput.addEventListener('input', () => {
+      const pw = passwordInput.value;
+      for (const [id, requirement] of Object.entries(requirements)) {
+        const element = document.getElementById(id);
+        if (requirement.test(pw)) {
+          element.classList.remove('requirement-unmet');
+          element.classList.add('requirement-met');
+        } else {
+          element.classList.remove('requirement-met');
+          element.classList.add('requirement-unmet');
+        }
+      }
+    });
+
+    // Form submission validation (basic client-side demo)
+    const form = document.getElementById('registrationForm');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      let valid = true;
+      // Check each input field (expand as needed)
+      const username = document.getElementById('username');
+      const email = document.getElementById('email');
+      const confirmPassword = document.getElementById('confirmPassword');
+      // Reset error displays
+      document.getElementById('usernameError').style.display = 'none';
+      document.getElementById('emailError').style.display = 'none';
+      document.getElementById('passwordError').style.display = 'none';
+      document.getElementById('confirmPasswordError').style.display = 'none';
+      
+      if (!username.value.trim()) {
+        document.getElementById('usernameError').style.display = 'block';
+        valid = false;
+      }
+      if (!email.value.trim() || !/\S+@\S+\.\S+/.test(email.value)) {
+        document.getElementById('emailError').style.display = 'block';
+        valid = false;
+      }
+      if (passwordInput.value !== confirmPassword.value) {
+        document.getElementById('confirmPasswordError').style.display = 'block';
+        valid = false;
+      }
+      // You can add more validation here as needed
+
+      if (valid) {
+        // Proceed with form submission (or redirection)
+        window.location.href = 'page1.html';
+      } else {
+        // Optionally, focus the first error field
+        form.reportValidity();
+      }
+    });
+  </script>
+</body>
+</html>

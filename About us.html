@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <style>
+  dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-btn {
+        background-color: #303f9f;
+        color: white;
+        font-weight: bold;
+        padding: 10px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        min-width: 160px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        z-index: 1;
+    }
+
+    .dropdown-content a {
+        color: black;
+        padding: 10px;
+        display: block;
+        text-decoration: none;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #f1f1f1;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    </style>
+</head>
+
+<body>
+  <div class="dropdown">
+        <button class="dropdown-btn">MENU ▼</button>
+        <div class="dropdown-content">
+            <a href="index.html">HOME</a>
+            <a href="Trading.html">TRADING</a>
+            <a href="Investment.html">INVESTMENTS</a>
+            <a href="About us.html">ABOUT US</a>
+            <a href="Contact.html">CONTACT</a>
+        </div>
+</body>
+
+</html>

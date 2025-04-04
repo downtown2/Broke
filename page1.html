@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Investment Platform</title>
+    <style>
+        :root {
+            --primary: #2A2A2A;
+            --secondary: #3A3A3A;
+            --accent: #00FF88;
+            --text: #FFFFFF;
+            --gradient: linear-gradient(135deg, #00FF88 0%, #00D4FF 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* New Navigation Styles */
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(42, 42, 42, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropbtn {
+            background: var(--secondary);
+            color: white;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .dropbtn:hover {
+            background: var(--accent);
+            color: var(--primary);
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: var(--secondary);
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: white;
+            padding: 1rem 1.5rem;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-content a:hover {
+            background: var(--primary);
+            color: var(--accent);
+        }
+
+        /* Original Body Styles */
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--primary);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-top: 60px; /* Added for fixed nav */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            margin-bottom: 3rem;
+            border-radius: 0 0 30px 30px;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -2px;
+            animation: slideIn 1s ease;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            perspective: 1000px;
+        }
+
+        .investment-option {
+            background: var(--secondary);
+            padding: 2.5rem;
+            border-radius: 20px;
+            transform-style: preserve-3d;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+            opacity: 0;
+            animation: cardEntry 0.8s forwards;
+        }
+
+        .investment-option:nth-child(1) { animation-delay: 0.2s; }
+        .investment-option:nth-child(2) { animation-delay: 0.4s; }
+        .investment-option:nth-child(3) { animation-delay: 0.6s; }
+
+        .investment-option:hover {
+            transform: translateY(-10px) rotateX(5deg) rotateY(-5deg) scale(1.03);
+            box-shadow: 0 25px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .investment-option::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: var(--gradient);
+            transform: rotate(45deg);
+            opacity: 0.1;
+            transition: all 0.6s;
+        }
+
+        .investment-option:hover::before {
+            transform: rotate(45deg) translateX(100%);
+        }
+
+        .investment-option h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .investment-option p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: var(--gradient);
+            color: var(--primary);
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        @keyframes cardEntry {
+            from {
+                opacity: 0;
+                transform: translateY(50px) rotateX(30deg);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Particle background animation */
+        .particles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            from { transform: translateY(0) rotate(0deg); }
+            to { transform: translateY(-100vh) rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                padding: 1rem;
+            }
+            
+            .dropbtn {
+                padding: 0.8rem 1rem;
+            }
+            
+            .dropdown-content {
+                position: fixed;
+                width: 100%;
+                left: 0;
+                right: auto;
+            }
+            
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- New Navigation -->
+    <nav class="nav">
+        <div class="dropdown">
+            <button class="dropbtn">Menu ▼</button>
+            <div class="dropdown-content">
+                <a href="withdrawal.html">Withdrawal</a>
+                <a href="deposit.html">Deposit</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Original Content -->
+    <div class="particles" id="particles"></div>
+    
+    <div class="header">
+        <h1>INVESTMENT PLANS</h1>
+        <p>Invest in Tomorrow, Today</p>
+    </div>
+
+    <div class="container">
+        <div class="options-container">
+            <div class="investment-option">
+                <h2>STARTER PLAN</h2>
+                <p>Return 143% daily<br>
+                $100-$499<br>
+                Total 1001% in 7 days</p>
+                <a href="Starter plan.html" class="cta-button">INVEST NOW</a>
+            </div>
+
+            <div class="investment-option">
+                <h2>BRONZE PLAN</h2>
+                <p>Return 143% daily<br>
+                $500-$999<br>
+                Total 1001% in 7 days</p>
+                <a href="balanced-plan.html" class="cta-button">INVEST NOW</a>
+            </div>
+
+            <div class="investment-option">
+                <h2>SILVER PLAN</h2>
+                <p>Return 143% daily<br>
+                $1000-$4999<br>
+                Total 1001% in 7 days</p>
+                <a href="conservative-plan.html" class="cta-button">INVEST NOW</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced particle system
+        function createParticles() {
+            const particles = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.cssText = `
+                    width: ${Math.random() * 4 + 2}px;
+                    height: ${Math.random() * 4 + 2}px;
+                    left: ${Math.random() * 100}%;
+                    animation-duration: ${Math.random() * 5 + 10}s;
+                    opacity: ${Math.random() * 0.5 + 0.2};
+                `;
+                particles.appendChild(particle);
+            }
+        }
+
+        // Mobile menu handling
+        document.querySelector('.dropbtn').addEventListener('click', function(e) {
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+                const content = this.nextElementSibling;
+                content.style.display = content.style.display === 'block' ? 'none' : 'block';
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown') && window.innerWidth <= 768) {
+                const dropdowns = document.querySelectorAll('.dropdown-content');
+                dropdowns.forEach(dropdown => {
+                    dropdown.style.display = 'none';
+                });
+            }
+        });
+
+        createParticles();
+    </script>
+</body>
+</html>
