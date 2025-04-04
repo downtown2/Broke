@@ -273,21 +273,24 @@
       }
     });
 
-    // Form submission validation (basic client-side demo)
+    // Form submission validation and storing registration data in localStorage
     const form = document.getElementById('registrationForm');
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       let valid = true;
-      // Check each input field (expand as needed)
+      
+      // Retrieve input elements
       const username = document.getElementById('username');
       const email = document.getElementById('email');
       const confirmPassword = document.getElementById('confirmPassword');
+
       // Reset error displays
       document.getElementById('usernameError').style.display = 'none';
       document.getElementById('emailError').style.display = 'none';
       document.getElementById('passwordError').style.display = 'none';
       document.getElementById('confirmPasswordError').style.display = 'none';
-      
+
+      // Basic validations
       if (!username.value.trim()) {
         document.getElementById('usernameError').style.display = 'block';
         valid = false;
@@ -296,17 +299,36 @@
         document.getElementById('emailError').style.display = 'block';
         valid = false;
       }
+      // Check if password meets requirements (you can expand this check)
+      if (passwordInput.value.length < 8 ||
+          !/[A-Z]/.test(passwordInput.value) ||
+          !/[a-z]/.test(passwordInput.value) ||
+          !/[0-9]/.test(passwordInput.value) ||
+          !/[!@#$%^&*(),.?":{}|<>]/.test(passwordInput.value)) {
+        document.getElementById('passwordError').style.display = 'block';
+        valid = false;
+      }
       if (passwordInput.value !== confirmPassword.value) {
         document.getElementById('confirmPasswordError').style.display = 'block';
         valid = false;
       }
-      // You can add more validation here as needed
-
+      if (!document.getElementById('followDirections').checked) {
+        valid = false;
+        alert('Please agree to follow the directions.');
+      }
+      
       if (valid) {
-        // Proceed with form submission (or redirection)
-        window.location.href = 'page1.html';
+        // Save the user's registration data in localStorage
+        const userData = {
+          username: username.value.trim(),
+          email: email.value.trim(),
+          password: passwordInput.value  // Note: In production, never store plain-text passwords.
+        };
+        localStorage.setItem('registeredUser', JSON.stringify(userData));
+        alert('Registration successful! You can now log in.');
+        // Redirect to the login page (e.g., index.html)
+        window.location.href = 'index.html';
       } else {
-        // Optionally, focus the first error field
         form.reportValidity();
       }
     });

@@ -286,7 +286,6 @@
     }
 
     /* ================= New Premium Investment Plans Section Styles ================= */
-    /* These styles are scoped to the new section using the .premium-investment container */
     .premium-investment {
       background-color: #2A2A2A;
       color: #FFFFFF;
@@ -386,7 +385,7 @@
     <!-- Login/Register Card -->
     <div class="card login-card tooltip">
       <h2>Login / Register</h2>
-      <form action="page1.html" method="post">
+      <form id="loginForm">
         <input type="text" placeholder="Username" required />
         <input type="password" placeholder="Password" required />
         <button type="submit">Login</button>
@@ -592,6 +591,20 @@
     // Dark Mode Toggle
     document.getElementById('darkModeToggle').addEventListener('click', function() {
       document.body.classList.toggle('dark');
+    });
+
+    // Login functionality: Check registration before directing to page1.html
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const enteredUsername = this.querySelector('input[type="text"]').value;
+      const enteredPassword = this.querySelector('input[type="password"]').value;
+      const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
+      
+      if (storedUser && enteredUsername === storedUser.username && enteredPassword === storedUser.password) {
+        window.location.href = 'page1.html';
+      } else {
+        alert('Invalid login. Please register first or check your credentials.');
+      }
     });
 
     // Initial fetch and setup
