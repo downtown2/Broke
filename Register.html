@@ -36,7 +36,7 @@
       position: relative;
     }
 
-    /* Fixed Home Button at Top Left with Icon and No Scaling */
+    /* Fixed Home Button at Top Left with Icon */
     .home-button {
       position: fixed;
       top: 20px;
@@ -152,12 +152,6 @@
       font-weight: normal;
       display: inline;
     }
-    /* Helper Text (optional) */
-    .helper-text {
-      font-size: 0.8rem;
-      color: #ccc;
-      margin-top: 0.25rem;
-    }
     /* Responsive Adjustments */
     @media (max-width: 480px) {
       .container {
@@ -172,7 +166,7 @@
   </style>
 </head>
 <body>
-  <!-- Home Button with an Icon (Unicode Home symbol) -->
+  <!-- Home Button -->
   <a href="index.html" class="home-button" aria-label="Home">&#x1F3E0; Home</a>
 
   <div class="container">
@@ -299,7 +293,7 @@
         document.getElementById('emailError').style.display = 'block';
         valid = false;
       }
-      // Check if password meets requirements (you can expand this check)
+      // Check if password meets requirements
       if (passwordInput.value.length < 8 ||
           !/[A-Z]/.test(passwordInput.value) ||
           !/[a-z]/.test(passwordInput.value) ||
@@ -322,11 +316,11 @@
         const userData = {
           username: username.value.trim(),
           email: email.value.trim(),
-          password: passwordInput.value  // Note: In production, never store plain-text passwords.
+          password: passwordInput.value  // Note: For demo purposes only. In production, do not store plain-text passwords.
         };
         localStorage.setItem('registeredUser', JSON.stringify(userData));
         alert('Registration successful! You can now log in.');
-        // Redirect to the login page (e.g., index.html)
+        // Redirect to the login page (index.html)
         window.location.href = 'index.html';
       } else {
         form.reportValidity();

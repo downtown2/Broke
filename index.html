@@ -593,17 +593,26 @@
       document.body.classList.toggle('dark');
     });
 
-    // Login functionality: Check registration before directing to page1.html
+    // Login functionality: Check for admin login first, then normal user login
     document.getElementById('loginForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const enteredUsername = this.querySelector('input[type="text"]').value;
       const enteredPassword = this.querySelector('input[type="password"]').value;
-      const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
       
-      if (storedUser && enteredUsername === storedUser.username && enteredPassword === storedUser.password) {
-        window.location.href = 'page1.html';
+      // Check if the entered credentials are for admin.
+      if (enteredUsername === "admin" && enteredPassword === "admin123") {
+        localStorage.setItem("adminAuthenticated", "true");
+        alert("Admin login successful!");
+        window.location.href = 'edit.html';
       } else {
-        alert('Invalid login. Please register first or check your credentials.');
+        // Check for a registered user stored in localStorage.
+        const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
+        if (storedUser && enteredUsername === storedUser.username && enteredPassword === storedUser.password) {
+          alert('User login successful!');
+          window.location.href = 'page1.html';
+        } else {
+          alert('Invalid login. Please register first or check your credentials.');
+        }
       }
     });
 
