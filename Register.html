@@ -32,7 +32,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      padding-top: 80px; /* Prevent content from overlapping fixed Home button */
+      padding-top: 80px;
       position: relative;
     }
 
@@ -272,19 +272,16 @@
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       let valid = true;
-      
+
       // Retrieve input elements
       const username = document.getElementById('username');
       const email = document.getElementById('email');
       const confirmPassword = document.getElementById('confirmPassword');
 
       // Reset error displays
-      document.getElementById('usernameError').style.display = 'none';
-      document.getElementById('emailError').style.display = 'none';
-      document.getElementById('passwordError').style.display = 'none';
-      document.getElementById('confirmPasswordError').style.display = 'none';
+      document.querySelectorAll('.error').forEach(error => error.style.display = 'none');
 
-      // Basic validations
+      // Validation checks
       if (!username.value.trim()) {
         document.getElementById('usernameError').style.display = 'block';
         valid = false;
@@ -293,7 +290,6 @@
         document.getElementById('emailError').style.display = 'block';
         valid = false;
       }
-      // Check if password meets requirements
       if (passwordInput.value.length < 8 ||
           !/[A-Z]/.test(passwordInput.value) ||
           !/[a-z]/.test(passwordInput.value) ||
@@ -310,17 +306,34 @@
         valid = false;
         alert('Please agree to follow the directions.');
       }
-      
+
       if (valid) {
-        // Save the user's registration data in localStorage
-        const userData = {
+        // Get existing users or create new array
+        const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
+        
+        // Check for existing username
+        if(existingUsers.some(user => user.username === username.value.trim())) {
+          alert('Username already exists!');
+          return;
+        }
+
+        // Create complete user object
+        const newUser = {
           username: username.value.trim(),
           email: email.value.trim(),
-          password: passwordInput.value  // Note: For demo purposes only. In production, do not store plain-text passwords.
+          password: passwordInput.value,
+          balance: 0,
+          plan: 'None',
+          registrationDate: new Date().toISOString(),
+          investments: [],
+          verified: false
         };
-        localStorage.setItem('registeredUser', JSON.stringify(userData));
+
+        // Add to users array and save
+        existingUsers.push(newUser);
+        localStorage.setItem('users', JSON.stringify(existingUsers));
+        
         alert('Registration successful! You can now log in.');
-        // Redirect to the login page (index.html)
         window.location.href = 'index.html';
       } else {
         form.reportValidity();

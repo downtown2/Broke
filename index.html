@@ -593,26 +593,31 @@
       document.body.classList.toggle('dark');
     });
 
-    // Login functionality: Check for admin login first, then normal user login
+    // Login functionality: Check for admin login first, then regular user login
     document.getElementById('loginForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const enteredUsername = this.querySelector('input[type="text"]').value;
       const enteredPassword = this.querySelector('input[type="password"]').value;
-      
-      // Check if the entered credentials are for admin.
+
+      // Admin login check
       if (enteredUsername === "admin" && enteredPassword === "admin123") {
         localStorage.setItem("adminAuthenticated", "true");
-        alert("Admin login successful!");
-        window.location.href = 'gggg.html';
+        window.location.href = 'edit.html';
+        return;
+      }
+
+      // Regular user check using users array from localStorage
+      const users = JSON.parse(localStorage.getItem('users')) || [];
+      const validUser = users.find(user => 
+        user.username === enteredUsername && 
+        user.password === enteredPassword
+      );
+
+      if (validUser) {
+        alert('Login successful!');
+        window.location.href = 'page1.html';
       } else {
-        // Check for a registered user stored in localStorage.
-        const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
-        if (storedUser && enteredUsername === storedUser.username && enteredPassword === storedUser.password) {
-          alert('User login successful!');
-          window.location.href = 'page1.html';
-        } else {
-          alert('Invalid login. Please register first or check your credentials.');
-        }
+        alert('Invalid credentials!');
       }
     });
 
