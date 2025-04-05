@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Registration Page</title>
   <style>
-    /* CSS Variables for Consistent Styling */
     :root {
       --primary-color: #3498db;
       --hover-color: #2980b9;
@@ -17,8 +16,6 @@
       --input-focus-bg: rgba(255, 255, 255, 0.3);
       --font-family: 'Poppins', sans-serif;
     }
-
-    /* Global Styles */
     * {
       margin: 0;
       padding: 0;
@@ -35,8 +32,6 @@
       padding-top: 80px;
       position: relative;
     }
-
-    /* Fixed Home Button at Top Left with Icon */
     .home-button {
       position: fixed;
       top: 20px;
@@ -61,7 +56,6 @@
     .home-button:focus {
       outline: 2px solid var(--primary-color);
     }
-    /* Registration Container */
     .container {
       background: var(--container-bg);
       backdrop-filter: blur(10px);
@@ -152,7 +146,6 @@
       font-weight: normal;
       display: inline;
     }
-    /* Responsive Adjustments */
     @media (max-width: 480px) {
       .container {
         width: 90%;
@@ -164,11 +157,12 @@
       }
     }
   </style>
-  <!-- Include Supabase library -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js"></script>
 </head>
 <body>
-  <!-- Home Button -->
   <a href="index.html" class="home-button" aria-label="Home">&#x1F3E0; Home</a>
 
   <div class="container">
@@ -176,46 +170,22 @@
     <form id="registrationForm" novalidate>
       <div class="form-group">
         <label for="username">Username</label>
-        <input 
-          type="text" 
-          id="username" 
-          name="username" 
-          required 
-          aria-required="true" 
-          placeholder="Enter your username" />
+        <input type="text" id="username" required placeholder="Enter your username" />
         <div class="error" id="usernameError">Username is required</div>
       </div>
       <div class="form-group">
         <label for="email">Email</label>
-        <input 
-          type="email" 
-          id="email" 
-          name="email" 
-          required 
-          aria-required="true" 
-          placeholder="example@mail.com" />
+        <input type="email" id="email" required placeholder="example@mail.com" />
         <div class="error" id="emailError">Please enter a valid email</div>
       </div>
       <div class="form-group">
         <label for="password">Password</label>
-        <input 
-          type="password" 
-          id="password" 
-          name="password" 
-          required 
-          aria-required="true" 
-          placeholder="Enter a secure password" />
+        <input type="password" id="password" required placeholder="Enter a secure password" />
         <div class="error" id="passwordError">Password does not meet requirements</div>
       </div>
       <div class="form-group">
         <label for="confirmPassword">Confirm Password</label>
-        <input 
-          type="password" 
-          id="confirmPassword" 
-          name="confirmPassword" 
-          required 
-          aria-required="true" 
-          placeholder="Re-enter your password" />
+        <input type="password" id="confirmPassword" required placeholder="Re-enter your password" />
         <div class="error" id="confirmPasswordError">Passwords do not match</div>
       </div>
       <div class="password-requirements">
@@ -228,14 +198,8 @@
           <li id="special" class="requirement-unmet">At least one special character</li>
         </ul>
       </div>
-      <!-- Checkbox to agree to follow directions -->
       <div class="form-group checkbox-group">
-        <input 
-          type="checkbox" 
-          id="followDirections" 
-          name="followDirections" 
-          required 
-          aria-required="true" />
+        <input type="checkbox" id="followDirections" required />
         <label for="followDirections">I have read and will follow the directions</label>
       </div>
       <div class="form-group">
@@ -245,14 +209,16 @@
   </div>
 
   <script>
-    // Initialize Supabase client
-    // Note: process.env.* variables should be replaced during your build/deployment process.
-    const supabase = createClient(
-      process.env.SUPABASE_DATABASE_URL,
-      process.env.PUBLIC_SUPABASE_ANON_KEY
-    );
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "broke-54b27.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+    };
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    // Real-Time Password Validation
+    // Password Requirements
     const passwordInput = document.getElementById('password');
     const requirements = {
       length: { test: (pw) => pw.length >= 8 },
@@ -261,7 +227,6 @@
       number: { test: (pw) => /[0-9]/.test(pw) },
       special: { test: (pw) => /[!@#$%^&*(),.?":{}|<>]/.test(pw) }
     };
-
     passwordInput.addEventListener('input', () => {
       const pw = passwordInput.value;
       for (const [id, requirement] of Object.entries(requirements)) {
@@ -276,21 +241,17 @@
       }
     });
 
-    // Form submission validation and storing registration data in localStorage
+    // Form Submission
     const form = document.getElementById('registrationForm');
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       let valid = true;
-
-      // Retrieve input elements
       const username = document.getElementById('username');
       const email = document.getElementById('email');
       const confirmPassword = document.getElementById('confirmPassword');
 
-      // Reset error displays
       document.querySelectorAll('.error').forEach(error => error.style.display = 'none');
 
-      // Validation checks
       if (!username.value.trim()) {
         document.getElementById('usernameError').style.display = 'block';
         valid = false;
@@ -299,11 +260,13 @@
         document.getElementById('emailError').style.display = 'block';
         valid = false;
       }
-      if (passwordInput.value.length < 8 ||
-          !/[A-Z]/.test(passwordInput.value) ||
-          !/[a-z]/.test(passwordInput.value) ||
-          !/[0-9]/.test(passwordInput.value) ||
-          !/[!@#$%^&*(),.?":{}|<>]/.test(passwordInput.value)) {
+      if (
+        passwordInput.value.length < 8 ||
+        !/[A-Z]/.test(passwordInput.value) ||
+        !/[a-z]/.test(passwordInput.value) ||
+        !/[0-9]/.test(passwordInput.value) ||
+        !/[!@#$%^&*(),.?":{}|<>]/.test(passwordInput.value)
+      ) {
         document.getElementById('passwordError').style.display = 'block';
         valid = false;
       }
@@ -317,16 +280,6 @@
       }
 
       if (valid) {
-        // Get existing users or create new array
-        const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
-        
-        // Check for existing username
-        if(existingUsers.some(user => user.username === username.value.trim())) {
-          alert('Username already exists!');
-          return;
-        }
-
-        // Create complete user object
         const newUser = {
           username: username.value.trim(),
           email: email.value.trim(),
@@ -338,12 +291,13 @@
           verified: false
         };
 
-        // Add to users array and save
-        existingUsers.push(newUser);
-        localStorage.setItem('users', JSON.stringify(existingUsers));
-        
-        alert('Registration successful! You can now log in.');
-        window.location.href = 'index.html';
+        db.collection("users").add(newUser).then(() => {
+          alert("Registration successful! You can now log in.");
+          window.location.href = "index.html";
+        }).catch((error) => {
+          console.error("Error saving to Firestore:", error);
+          alert("Something went wrong. Please try again.");
+        });
       } else {
         form.reportValidity();
       }
