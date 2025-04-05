@@ -148,6 +148,12 @@
   </div>
 
   <script>
+    // Initialize Supabase client
+    const supabase = createClient(
+      process.env.SUPABASE_DATABASE_URL,
+      process.env.PUBLIC_SUPABASE_ANON_KEY
+    );
+
     // Check admin authentication
     if (!localStorage.getItem('adminAuthenticated')) {
       window.location.href = 'index.html';

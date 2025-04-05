@@ -164,6 +164,8 @@
       }
     }
   </style>
+  <!-- Include Supabase library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
   <!-- Home Button -->
@@ -243,6 +245,13 @@
   </div>
 
   <script>
+    // Initialize Supabase client
+    // Note: process.env.* variables should be replaced during your build/deployment process.
+    const supabase = createClient(
+      process.env.SUPABASE_DATABASE_URL,
+      process.env.PUBLIC_SUPABASE_ANON_KEY
+    );
+
     // Real-Time Password Validation
     const passwordInput = document.getElementById('password');
     const requirements = {

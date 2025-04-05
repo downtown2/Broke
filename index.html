@@ -535,6 +535,12 @@
 
   <!-- ================= JavaScript ================= -->
   <script>
+    // Initialize Supabase client
+    const supabase = createClient(
+      process.env.SUPABASE_DATABASE_URL,
+      process.env.PUBLIC_SUPABASE_ANON_KEY
+    );
+
     // Fetch live crypto prices and additional data from CoinGecko
     async function fetchCryptoData() {
       try {
@@ -625,6 +631,4 @@
     fetchCryptoData();
     setInterval(fetchCryptoData, 60000);
     showNotifications();
-  </script>
-</body>
-</html>
+  </scri
