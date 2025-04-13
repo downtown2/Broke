@@ -161,6 +161,7 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"></script>
 </head>
 <body>
   <a href="index.html" class="home-button" aria-label="Home">&#x1F3E0; Home</a>
@@ -209,16 +210,20 @@
   </div>
 
   <script>
-    // Firebase Config
+    // Firebase Configuration (Replace with your actual config)
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
-      authDomain: "broke-54b27.firebaseapp.com",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
       projectId: "YOUR_PROJECT_ID",
+      // Add other config fields if needed
     };
+
+    // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // Password Requirements Handling
+    // Password Validation Logic
     const passwordInput = document.getElementById('password');
     const requirements = {
       length: { test: (pw) => pw.length >= 8 },
@@ -227,89 +232,124 @@
       number: { test: (pw) => /[0-9]/.test(pw) },
       special: { test: (pw) => /[!@#$%^&*(),.?":{}|<>]/.test(pw) }
     };
+
     passwordInput.addEventListener('input', () => {
       const pw = passwordInput.value;
-      for (const [id, requirement] of Object.entries(requirements)) {
+      Object.entries(requirements).forEach(([id, requirement]) => {
         const element = document.getElementById(id);
-        if (requirement.test(pw)) {
-          element.classList.remove('requirement-unmet');
-          element.classList.add('requirement-met');
-        } else {
-          element.classList.remove('requirement-met');
-          element.classList.add('requirement-unmet');
-        }
-      }
+        element.classList.toggle('requirement-met', requirement.test(pw));
+        element.classList.toggle('requirement-unmet', !requirement.test(pw));
+      });
     });
 
     // Form Submission Handler
-    const form = document.getElementById('registrationForm');
-    form.addEventListener('submit', (e) => {
+    document.getElementById('registrationForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      let valid = true;
+      let isValid = true;
+
+      // Clear errors
+      document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
+
+      // Get form elements
+      const elements = {
+        username: document.getElementById('username'),
+        email: document.getElementById('email'),
+        password: passwordInput,
+        confirmPassword: document.getElementById('confirmPassword'),
+        checkbox: document.getElementById('followDirections')
+      };
+
+      // Validation checks
+      if (!elements.username.value.trim()) {
+        showError('usernameError', 'Username is required');
+        isValid = false;
+      }
       
-      // Clear error messages
-      document.querySelectorAll('.error').forEach(error => error.style.display = 'none');
-
-      const usernameField = document.getElementById('username');
-      const emailField = document.getElementById('email');
-      const confirmPasswordField = document.getElementById('confirmPassword');
-
-      if (!usernameField.value.trim()) {
-        document.getElementById('usernameError').style.display = 'block';
-        valid = false;
-      }
-      if (!emailField.value.trim() || !/\S+@\S+\.\S+/.test(emailField.value)) {
-        document.getElementById('emailError').style.display = 'block';
-        valid = false;
-      }
-      if (
-        passwordInput.value.length < 8 ||
-        !/[A-Z]/.test(passwordInput.value) ||
-        !/[a-z]/.test(passwordInput.value) ||
-        !/[0-9]/.test(passwordInput.value) ||
-        !/[!@#$%^&*(),.?":{}|<>]/.test(passwordInput.value)
-      ) {
-        document.getElementById('passwordError').style.display = 'block';
-        valid = false;
-      }
-      if (passwordInput.value !== confirmPasswordField.value) {
-        document.getElementById('confirmPasswordError').style.display = 'block';
-        valid = false;
-      }
-      if (!document.getElementById('followDirections').checked) {
-        valid = false;
-        alert('Please agree to follow the directions.');
+      if (!validateEmail(elements.email.value)) {
+        showError('emailError', 'Please enter a valid email');
+        isValid = false;
       }
 
-      // If valid, create new user object and save data
-      if (valid) {
-        const newUser = {
-          username: usernameField.value.trim(),
-          email: emailField.value.trim(),
-          password: passwordInput.value, // Note: In production, you would hash the password.
+      if (!validatePassword(elements.password.value)) {
+        showError('passwordError', 'Password does not meet requirements');
+        isValid = false;
+      }
+
+      if (elements.password.value !== elements.confirmPassword.value) {
+        showError('confirmPasswordError', 'Passwords do not match');
+        isValid = false;
+      }
+
+      if (!elements.checkbox.checked) {
+        alert('Please agree to follow the directions');
+        isValid = false;
+      }
+
+      if (!isValid) return;
+
+      try {
+        // Create user with Firebase Authentication
+        const userCredential = await auth.createUserWithEmailAndPassword(
+          elements.email.value,
+          elements.password.value
+        );
+
+        // Store additional user data in Firestore
+        await db.collection('users').doc(userCredential.user.uid).set({
+          username: elements.username.value.trim(),
+          email: elements.email.value.trim(),
           balance: 0,
           plan: 'None',
           registrationDate: new Date().toISOString(),
           investments: [],
           verified: false
-        };
-
-        // Save to Firestore
-        db.collection("users").add(newUser).then(() => {
-          // Also update localStorage with new user data
-          let localUsers = JSON.parse(localStorage.getItem("users")) || [];
-          localUsers.push(newUser);
-          localStorage.setItem("users", JSON.stringify(localUsers));
-          alert("Registration successful! You can now log in.");
-          window.location.href = "index.html";
-        }).catch((error) => {
-          console.error("Error saving to Firestore:", error);
-          alert("Something went wrong. Please try again.");
         });
-      } else {
-        form.reportValidity();
+
+        // Store in localStorage
+        localStorage.setItem('currentUser', JSON.stringify({
+          uid: userCredential.user.uid,
+          email: elements.email.value.trim()
+        }));
+
+        alert('Registration successful! Redirecting...');
+        window.location.href = 'page1.html'; // Redirect to page1.html
+      } catch (error) {
+        handleFirebaseError(error);
       }
     });
+
+    function validateEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function validatePassword(password) {
+      return Object.values(requirements).every(rule => rule.test(password));
+    }
+
+    function showError(elementId, message) {
+      const errorElement = document.getElementById(elementId);
+      errorElement.textContent = message;
+      errorElement.style.display = 'block';
+    }
+
+    function handleFirebaseError(error) {
+      console.error('Error:', error);
+      let message = 'Registration failed. Please try again.';
+      
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          message = 'Email is already registered';
+          break;
+        case 'auth/weak-password':
+          message = 'Password is too weak';
+          break;
+        case 'auth/invalid-email':
+          message = 'Invalid email address';
+          break;
+      }
+      
+      alert(message);
+    }
   </script>
 </body>
 </html>
