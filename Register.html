@@ -218,7 +218,7 @@
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Password Requirements
+    // Password Requirements Handling
     const passwordInput = document.getElementById('password');
     const requirements = {
       length: { test: (pw) => pw.length >= 8 },
@@ -241,22 +241,24 @@
       }
     });
 
-    // Form Submission
+    // Form Submission Handler
     const form = document.getElementById('registrationForm');
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       let valid = true;
-      const username = document.getElementById('username');
-      const email = document.getElementById('email');
-      const confirmPassword = document.getElementById('confirmPassword');
-
+      
+      // Clear error messages
       document.querySelectorAll('.error').forEach(error => error.style.display = 'none');
 
-      if (!username.value.trim()) {
+      const usernameField = document.getElementById('username');
+      const emailField = document.getElementById('email');
+      const confirmPasswordField = document.getElementById('confirmPassword');
+
+      if (!usernameField.value.trim()) {
         document.getElementById('usernameError').style.display = 'block';
         valid = false;
       }
-      if (!email.value.trim() || !/\S+@\S+\.\S+/.test(email.value)) {
+      if (!emailField.value.trim() || !/\S+@\S+\.\S+/.test(emailField.value)) {
         document.getElementById('emailError').style.display = 'block';
         valid = false;
       }
@@ -270,7 +272,7 @@
         document.getElementById('passwordError').style.display = 'block';
         valid = false;
       }
-      if (passwordInput.value !== confirmPassword.value) {
+      if (passwordInput.value !== confirmPasswordField.value) {
         document.getElementById('confirmPasswordError').style.display = 'block';
         valid = false;
       }
@@ -279,11 +281,12 @@
         alert('Please agree to follow the directions.');
       }
 
+      // If valid, create new user object and save data
       if (valid) {
         const newUser = {
-          username: username.value.trim(),
-          email: email.value.trim(),
-          password: passwordInput.value,
+          username: usernameField.value.trim(),
+          email: emailField.value.trim(),
+          password: passwordInput.value, // Note: In production, you would hash the password.
           balance: 0,
           plan: 'None',
           registrationDate: new Date().toISOString(),
@@ -291,7 +294,12 @@
           verified: false
         };
 
+        // Save to Firestore
         db.collection("users").add(newUser).then(() => {
+          // Also update localStorage with new user data
+          let localUsers = JSON.parse(localStorage.getItem("users")) || [];
+          localUsers.push(newUser);
+          localStorage.setItem("users", JSON.stringify(localUsers));
           alert("Registration successful! You can now log in.");
           window.location.href = "index.html";
         }).catch((error) => {
