@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Firebase App (the core Firebase SDK) -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+
+<!-- Firebase Realtime Database -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard - User Management</title>
@@ -254,5 +259,51 @@
     // Render users when the page loads
     window.onload = renderUsers;
   </script>
+  <script>
+  // Function to load user data
+  function loadUserData() {
+    database.ref('users').once('value')
+      .then(snapshot => {
+        const users = snapshot.val();
+        const userList = document.getElementById('userList');
+        userList.innerHTML = ''; // Clear existing content
+
+        for (let userId in users) {
+          const user = users[userId];
+          const userDiv = document.createElement('div');
+          userDiv.innerHTML = `
+            <p><strong>${user.name}</strong> - $${user.investment}</p>
+            <input type="number" id="investment_${userId}" value="${user.investment}" />
+            <button onclick="updateUser('${userId}')">Update</button>
+            <hr/>
+          `;
+          userList.appendChild(userDiv);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching user data:', error);
+      });
+  }
+
+  // Function to update user investment
+  function updateUser(userId) {
+    const newInvestment = parseFloat(document.getElementById('investment_' + userId).value);
+    if (!isNaN(newInvestment)) {
+      database.ref('users/' + userId).update({ investment: newInvestment })
+        .then(() => {
+          alert('Investment updated successfully!');
+          loadUserData(); // Refresh the user list
+        })
+        .catch(error => {
+          console.error('Error updating investment:', error);
+        });
+    } else {
+      alert('Please enter a valid investment amount.');
+    }
+  }
+
+  // Load user data when the page loads
+  document.addEventListener('DOMContentLoaded', loadUserData);
+</script>
 </body>
 </html>

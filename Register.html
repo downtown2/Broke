@@ -91,9 +91,7 @@
       background: var(--input-bg);
       color: white;
     }
-    input[type="text"]:focus,
-    input[type="email"]:focus,
-    input[type="password"]:focus {
+    input:focus {
       outline: none;
       background: var(--input-focus-bg);
       box-shadow: 0 0 5px var(--primary-color);
@@ -157,15 +155,33 @@
       }
     }
   </style>
-
-  <!-- Firebase SDK -->
+  <!-- Firebase SDKs (v10.0.0 for consistency) -->
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js"></script>
+  <script>
+    // Firebase Configuration (replace with your actual configuration)
+    const firebaseConfig = {
+      apiKey: "AIzaSyB0yUToVBZCq1DssAn5z_do1ZsOFvbYXys",
+      authDomain: "samuel-f412b.firebaseapp.com",
+      projectId: "samuel-f412b",
+      storageBucket: "samuel-f412b.firebasestorage.app",
+      messagingSenderId: "45562379222",
+      appId: "1:45562379222:web:8017795e7e61099545c277",
+      measurementId: "G-QP9JZ1MWS0",
+      databaseURL: "https://samuel-f412b.firebaseio.com"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const realtimeDB = firebase.database();
+  </script>
 </head>
 <body>
   <a href="index.html" class="home-button" aria-label="Home">&#x1F3E0; Home</a>
-
   <div class="container">
     <h1>Create Account</h1>
     <form id="registrationForm" novalidate>
@@ -189,6 +205,12 @@
         <input type="password" id="confirmPassword" required placeholder="Re-enter your password" />
         <div class="error" id="confirmPasswordError">Passwords do not match</div>
       </div>
+      <!-- Additional Field for Full Name -->
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" required placeholder="Enter your full name" />
+        <div class="error" id="fullNameError">Full name is required</div>
+      </div>
       <div class="password-requirements">
         <strong>Password Requirements:</strong>
         <ul>
@@ -207,149 +229,116 @@
         <button type="submit">Register</button>
       </div>
     </form>
+    <!-- Hidden anchor that directs to page1.html -->
+    <a id="registrationLink" href="page1.html" style="display:none;">Go to Page1</a>
   </div>
 
   <script>
-    // Firebase Configuration (Replace with your actual config)
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      // Add other config fields if needed
-    };
-
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    // Password Validation Logic
+    // Password requirements validation
     const passwordInput = document.getElementById('password');
     const requirements = {
-      length: { test: (pw) => pw.length >= 8 },
-      uppercase: { test: (pw) => /[A-Z]/.test(pw) },
-      lowercase: { test: (pw) => /[a-z]/.test(pw) },
-      number: { test: (pw) => /[0-9]/.test(pw) },
-      special: { test: (pw) => /[!@#$%^&*(),.?":{}|<>]/.test(pw) }
+      length: pw => pw.length >= 8,
+      uppercase: pw => /[A-Z]/.test(pw),
+      lowercase: pw => /[a-z]/.test(pw),
+      number: pw => /[0-9]/.test(pw),
+      special: pw => /[!@#$%^&*(),.?":{}|<>]/.test(pw)
     };
 
     passwordInput.addEventListener('input', () => {
       const pw = passwordInput.value;
-      Object.entries(requirements).forEach(([id, requirement]) => {
+      Object.entries(requirements).forEach(([id, testFn]) => {
         const element = document.getElementById(id);
-        element.classList.toggle('requirement-met', requirement.test(pw));
-        element.classList.toggle('requirement-unmet', !requirement.test(pw));
+        element.classList.toggle('requirement-met', testFn(pw));
+        element.classList.toggle('requirement-unmet', !testFn(pw));
       });
     });
 
-    // Form Submission Handler
+    // Form submission handler
     document.getElementById('registrationForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      let isValid = true;
-
-      // Clear errors
+      // Hide any previous error messages
       document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
 
-      // Get form elements
-      const elements = {
-        username: document.getElementById('username'),
-        email: document.getElementById('email'),
-        password: passwordInput,
-        confirmPassword: document.getElementById('confirmPassword'),
-        checkbox: document.getElementById('followDirections')
-      };
+      // Gather values
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const fullName = document.getElementById('fullName').value.trim();
+      const checkboxChecked = document.getElementById('followDirections').checked;
 
-      // Validation checks
-      if (!elements.username.value.trim()) {
-        showError('usernameError', 'Username is required');
+      let isValid = true;
+
+      // Validations
+      if (!username) {
+        document.getElementById('usernameError').style.display = 'block';
         isValid = false;
       }
-      
-      if (!validateEmail(elements.email.value)) {
-        showError('emailError', 'Please enter a valid email');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.getElementById('emailError').style.display = 'block';
         isValid = false;
       }
-
-      if (!validatePassword(elements.password.value)) {
-        showError('passwordError', 'Password does not meet requirements');
+      if (!Object.values(requirements).every(fn => fn(password))) {
+        document.getElementById('passwordError').style.display = 'block';
         isValid = false;
       }
-
-      if (elements.password.value !== elements.confirmPassword.value) {
-        showError('confirmPasswordError', 'Passwords do not match');
+      if (password !== confirmPassword) {
+        document.getElementById('confirmPasswordError').style.display = 'block';
         isValid = false;
       }
-
-      if (!elements.checkbox.checked) {
+      if (!fullName) {
+        document.getElementById('fullNameError').style.display = 'block';
+        isValid = false;
+      }
+      if (!checkboxChecked) {
         alert('Please agree to follow the directions');
         isValid = false;
       }
-
       if (!isValid) return;
 
       try {
         // Create user with Firebase Authentication
-        const userCredential = await auth.createUserWithEmailAndPassword(
-          elements.email.value,
-          elements.password.value
-        );
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
 
         // Store additional user data in Firestore
         await db.collection('users').doc(userCredential.user.uid).set({
-          username: elements.username.value.trim(),
-          email: elements.email.value.trim(),
-          balance: 0,
-          plan: 'None',
+          username: username,
+          email: email,
+          fullName: fullName,
           registrationDate: new Date().toISOString(),
-          investments: [],
           verified: false
         });
 
-        // Store in localStorage
-        localStorage.setItem('currentUser', JSON.stringify({
-          uid: userCredential.user.uid,
-          email: elements.email.value.trim()
-        }));
-
-        alert('Registration successful! Redirecting...');
-        window.location.href = 'page1.html'; // Redirect to page1.html
+        // Optionally, store a copy in the Realtime Database using full name as a key
+        const userIdKey = fullName.toLowerCase().replace(/\s+/g, '_');
+        realtimeDB.ref('users/' + userIdKey).set({
+          name: fullName
+        })
+        .then(() => {
+          alert('Registration successful!');
+          // Programmatically trigger the hidden anchor to navigate to page1.html
+          document.getElementById('registrationLink').click();
+        });
       } catch (error) {
-        handleFirebaseError(error);
+        console.error('Registration error:', error);
+        let message = 'Registration failed. Please try again.';
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            message = 'Email is already registered';
+            break;
+          case 'auth/weak-password':
+            message = 'Password must be at least 6 characters';
+            break;
+          case 'auth/invalid-email':
+            message = 'Invalid email address';
+            break;
+          case 'auth/operation-not-allowed':
+            message = 'Email/password accounts are not enabled';
+            break;
+        }
+        alert(message);
       }
     });
-
-    function validateEmail(email) {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    function validatePassword(password) {
-      return Object.values(requirements).every(rule => rule.test(password));
-    }
-
-    function showError(elementId, message) {
-      const errorElement = document.getElementById(elementId);
-      errorElement.textContent = message;
-      errorElement.style.display = 'block';
-    }
-
-    function handleFirebaseError(error) {
-      console.error('Error:', error);
-      let message = 'Registration failed. Please try again.';
-      
-      switch (error.code) {
-        case 'auth/email-already-in-use':
-          message = 'Email is already registered';
-          break;
-        case 'auth/weak-password':
-          message = 'Password is too weak';
-          break;
-        case 'auth/invalid-email':
-          message = 'Invalid email address';
-          break;
-      }
-      
-      alert(message);
-    }
   </script>
 </body>
 </html>
