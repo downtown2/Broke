@@ -209,18 +209,19 @@
         <button type="submit" id="submitButton">Register</button>
       </div>
     </form>
-    <!-- Hidden anchor that directs to page1.html -->
+    <!-- Hidden anchor used for redirection -->
     <a id="registrationLink" href="page1.html" style="display:none;">Go to Page1</a>
   </div>
 
   <!-- Firebase Registration Script using Modular Firebase v10 SDK -->
   <script type="module">
+    // Import required Firebase functions
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
     import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-    // Firebase configuration (Update with your actual configuration)
+    // Firebase configuration (ensure these values are correct)
     const firebaseConfig = {
       apiKey: "AIzaSyB0yUToVBZCq1DssAn5z_do1ZsOFvbYXys",
       authDomain: "samuel-f412b.firebaseapp.com",
@@ -238,7 +239,7 @@
     const db = getFirestore(app);
     const realtimeDB = getDatabase(app);
 
-    // Setup password requirement validation
+    // Set up password requirement validation
     const passwordInput = document.getElementById("password");
     const requirements = {
       length: pw => pw.length >= 8,
@@ -303,9 +304,8 @@
         alert("You must agree to follow the directions.");
         valid = false;
       }
-
       if (!valid) {
-        console.log("Form validation failed");
+        console.log("Form validation failed.");
         submitButton.disabled = false;
         return;
       }
@@ -314,7 +314,7 @@
         console.log("Creating user with email:", email);
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const uid = userCredential.user.uid;
-        console.log("User created successfully, UID:", uid);
+        console.log("User created. UID:", uid);
 
         // Store additional user info in Firestore
         await setDoc(doc(db, "users", uid), {
@@ -326,13 +326,13 @@
         });
         console.log("User info stored in Firestore");
 
-        // Optionally, store a copy in the Realtime Database (using a key based on full name)
+        // Optionally store data in Realtime Database using a key based on full name
         const userKey = fullName.toLowerCase().replace(/\s+/g, "_");
         await set(ref(realtimeDB, "users/" + userKey), { name: fullName });
         console.log("User info stored in Realtime Database");
 
         alert("Registration successful!");
-        // Redirect to page1.html using a hidden anchor
+        // Trigger hidden anchor for redirection
         document.getElementById("registrationLink").click();
       } catch (error) {
         console.error("Registration error:", error);
