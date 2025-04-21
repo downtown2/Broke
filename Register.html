@@ -213,15 +213,14 @@
     <a id="registrationLink" href="page1.html" style="display:none;">Go to Page1</a>
   </div>
 
-  <!-- Firebase Registration Script using Modular v10 SDK -->
+  <!-- Firebase Registration Script using Modular Firebase v10 SDK -->
   <script type="module">
-    // Import necessary Firebase functions
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
     import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-    // Firebase configuration (replace with your actual configuration)
+    // Firebase configuration (Update with your actual configuration)
     const firebaseConfig = {
       apiKey: "AIzaSyB0yUToVBZCq1DssAn5z_do1ZsOFvbYXys",
       authDomain: "samuel-f412b.firebaseapp.com",
@@ -233,13 +232,13 @@
       databaseURL: "https://samuel-f412b.firebaseio.com"
     };
 
-    // Initialize Firebase services
+    console.log("Initializing Firebase...");
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const realtimeDB = getDatabase(app);
 
-    // Setup password requirements validation
+    // Setup password requirement validation
     const passwordInput = document.getElementById("password");
     const requirements = {
       length: pw => pw.length >= 8,
@@ -253,18 +252,22 @@
       const pw = passwordInput.value;
       Object.entries(requirements).forEach(([id, testFn]) => {
         const el = document.getElementById(id);
-        el.classList.toggle("requirement-met", testFn(pw));
-        el.classList.toggle("requirement-unmet", !testFn(pw));
+        if (el) {
+          const passed = testFn(pw);
+          el.classList.toggle("requirement-met", passed);
+          el.classList.toggle("requirement-unmet", !passed);
+        }
       });
     });
 
     // Handle registration form submission
     document.getElementById("registrationForm").addEventListener("submit", async (e) => {
       e.preventDefault();
+      console.log("Registration form submitted");
       const submitButton = document.getElementById("submitButton");
       submitButton.disabled = true;
 
-      // Get form values
+      // Gather field values
       const username = document.getElementById("username").value.trim();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
@@ -300,17 +303,20 @@
         alert("You must agree to follow the directions.");
         valid = false;
       }
+
       if (!valid) {
+        console.log("Form validation failed");
         submitButton.disabled = false;
         return;
       }
 
       try {
-        // Create user in Firebase Auth
+        console.log("Creating user with email:", email);
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const uid = userCredential.user.uid;
+        console.log("User created successfully, UID:", uid);
 
-        // Store additional info in Firestore
+        // Store additional user info in Firestore
         await setDoc(doc(db, "users", uid), {
           username,
           email,
@@ -318,13 +324,15 @@
           registrationDate: new Date().toISOString(),
           verified: false
         });
+        console.log("User info stored in Firestore");
 
-        // Optionally: Store in Realtime Database using a key based on full name
+        // Optionally, store a copy in the Realtime Database (using a key based on full name)
         const userKey = fullName.toLowerCase().replace(/\s+/g, "_");
         await set(ref(realtimeDB, "users/" + userKey), { name: fullName });
+        console.log("User info stored in Realtime Database");
 
         alert("Registration successful!");
-        // Redirect using hidden anchor
+        // Redirect to page1.html using a hidden anchor
         document.getElementById("registrationLink").click();
       } catch (error) {
         console.error("Registration error:", error);
