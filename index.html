@@ -1,16 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Firebase App (the core Firebase SDK) -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-
-<!-- Firebase Realtime Database -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Grade One Option - Trading Platform</title>
+  <title>Countparis Exchange - Trading Platform</title>
+
+  <!-- Firebase v10 SDKs using ES module syntax -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB0yUToVBZCq1DssAn5z_do1ZsOFvbYXys",
+      authDomain: "samuel-f412b.firebaseapp.com",
+      projectId: "samuel-f412b",
+      storageBucket: "samuel-f412b.firebasestorage.app",
+      messagingSenderId: "45562379222",
+      appId: "1:45562379222:web:8017795e7e61099545c277",
+      measurementId: "G-QP9JZ1MWS0",
+      databaseURL: "https://samuel-f412b.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Handle login form submission using Firebase Authentication
+      document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const email = this.querySelector('input[type="text"]').value.trim();
+        const password = this.querySelector('input[type="password"]').value;
+
+        // Admin check with hardcoded credentials
+        if (email === "admin" && password === "admin123") {
+          localStorage.setItem("adminAuthenticated", "true");
+          window.location.href = 'edit.html';
+          return;
+        }
+        
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          alert("Login successful!");
+          window.location.href = "page1.html";
+        } catch (error) {
+          console.error("Login error:", error);
+          alert("Invalid email or password");
+        }
+      });
+    });
+  </script>
+
   <style>
-    /* ================= Original Styles ================= */
+    /* Basic styles and resets */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -30,6 +71,8 @@
       text-align: center;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
+
+    /* Ticker styles */
     .ticker {
       width: 100%;
       overflow: hidden;
@@ -55,6 +98,8 @@
       0% { transform: translateX(100%); }
       100% { transform: translateX(-50%); }
     }
+
+    /* Navigation */
     .nav {
       display: flex;
       justify-content: space-between;
@@ -119,6 +164,8 @@
     .dark-mode-toggle:hover {
       transform: scale(1.05);
     }
+
+    /* Container and cards */
     .container {
       max-width: 1200px;
       margin: 0 auto;
@@ -143,6 +190,8 @@
       0% { opacity: 0; transform: translateY(20px); }
       100% { opacity: 1; transform: translateY(0); }
     }
+
+    /* Stats and highlights */
     .stats {
       display: flex;
       flex-wrap: wrap;
@@ -171,125 +220,8 @@
       margin: 5px 0 0;
       font-size: 1.2rem;
     }
-    .investment-option {
-      margin-bottom: 10px;
-    }
-    .market-data table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: center;
-    }
-    .market-data td, .market-data th {
-      padding: 10px;
-      border: 1px solid #ccc;
-      transition: background-color 0.3s;
-    }
-    .market-data tr:hover td {
-      background-color: #f9f9f9;
-    }
-    .positive { color: green; }
-    .negative { color: red; }
-    @media (max-width: 768px) {
-      .stats { flex-direction: column; }
-      .nav { flex-direction: column; }
-    }
-    .tooltip {
-      position: relative;
-      display: inline-block;
-    }
-    .tooltip .tooltiptext {
-      visibility: hidden;
-      width: 180px;
-      background-color: #555;
-      color: #fff;
-      text-align: center;
-      border-radius: 6px;
-      padding: 5px 0;
-      position: absolute;
-      z-index: 10;
-      bottom: 125%;
-      left: 50%;
-      margin-left: -90px;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .tooltip:hover .tooltiptext {
-      visibility: visible;
-      opacity: 1;
-    }
-    body.dark .tooltip .tooltiptext {
-      background-color: #222;
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); opacity: 0.8; }
-      50% { transform: scale(1.02); opacity: 1; }
-      100% { transform: scale(1); opacity: 0.8; }
-    }
-    #notifications {
-      animation: pulse 3s infinite;
-    }
-    .login-card {
-      background: linear-gradient(135deg, #fff, #e0f7fa);
-      border: 2px solid #00acc1;
-      padding: 30px;
-      text-align: center;
-    }
-    .login-card h2 {
-      margin-top: 0;
-      color: #00acc1;
-    }
-    .login-card form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      margin-top: 20px;
-    }
-    .login-card input {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 16px;
-      transition: border-color 0.3s;
-    }
-    .login-card input:focus {
-      outline: none;
-      border-color: #00acc1;
-    }
-    .login-card button {
-      padding: 10px;
-      background-color: #00acc1;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.3s;
-    }
-    .login-card button:hover {
-      background-color: #00838f;
-      transform: scale(1.02);
-    }
-    .login-card p {
-      margin: 0;
-      font-size: 14px;
-    }
-    .login-card a {
-      color: #00acc1;
-      text-decoration: none;
-      font-weight: bold;
-      transition: opacity 0.3s;
-    }
-    .login-card a:hover {
-      opacity: 0.8;
-    }
-    footer {
-      text-align: center;
-      padding: 10px;
-      font-size: 14px;
-      background-color: #303f9f;
-      color: white;
-    }
-    /* ================= New Premium Investment Plans Section Styles ================= */
+
+    /* Investment plans */
     .premium-investment {
       background-color: #2A2A2A;
       color: #FFFFFF;
@@ -346,29 +278,127 @@
       border-radius: 5px;
       font-weight: bold;
     }
+
+    /* Tooltip styles */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 180px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px 0;
+      position: absolute;
+      z-index: 10;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -90px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+    body.dark .tooltip .tooltiptext {
+      background-color: #222;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.02); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.8; }
+    }
+    #notifications {
+      animation: pulse 3s infinite;
+    }
+
+    /* Login card styles */
+    .login-card {
+      background: linear-gradient(135deg, #fff, #e0f7fa);
+      border: 2px solid #00acc1;
+      padding: 30px;
+      text-align: center;
+    }
+    .login-card h2 {
+      margin-top: 0;
+      color: #00acc1;
+    }
+    .login-card form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .login-card input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    .login-card input:focus {
+      outline: none;
+      border-color: #00acc1;
+    }
+    .login-card button {
+      padding: 10px;
+      background-color: #00acc1;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    .login-card button:hover {
+      background-color: #00838f;
+      transform: scale(1.02);
+    }
+    .login-card p {
+      margin: 0;
+      font-size: 14px;
+    }
+    .login-card a {
+      color: #00acc1;
+      text-decoration: none;
+      font-weight: bold;
+      transition: opacity 0.3s;
+    }
+    .login-card a:hover {
+      opacity: 0.8;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      background-color: #303f9f;
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <!-- ================= Header Section ================= -->
   <div class="header">
     <h1>Countparis Exchange</h1>
     <p>Secured Trading at Its Peak</p>
   </div>
 
-  <!-- ================= Notifications Area ================= -->
   <div id="notifications" style="background: #ffeb3b; color: #333; padding: 10px; text-align: center;">
-    <!-- Notifications will appear here -->
+    Welcome to Countparis Exchange!
   </div>
 
-  <!-- ================= Ticker Section ================= -->
   <div class="ticker" title="Hover to pause">
     <div class="ticker-content" id="ticker-content">
-      <span class="ticker-text" id="ticker-text"></span>
+      <span class="ticker-text" id="ticker-text">Live prices loading...</span>
       <span class="ticker-text" id="ticker-text-duplicate"></span>
     </div>
   </div>
 
-  <!-- ================= Navigation Bar ================= -->
   <div class="nav">
     <div class="dropdown tooltip">
       <button class="dropdown-btn">MENU ▼</button>
@@ -384,13 +414,11 @@
     </div>
   </div>
 
-  <!-- ================= Main Container ================= -->
   <div class="container">
-    <!-- Login/Register Card -->
     <div class="card login-card tooltip">
       <h2>Login / Register</h2>
       <form id="loginForm">
-        <input type="text" placeholder="Username" required />
+        <input type="text" placeholder="Email" required />
         <input type="password" placeholder="Password" required />
         <button type="submit">Login</button>
       </form>
@@ -398,7 +426,6 @@
       <span class="tooltiptext">User authentication</span>
     </div>
 
-    <!-- Promotional Card -->
     <div class="card tooltip">
       <h2>TRADING BONUSES YOU CAN TRUST</h2>
       <p>Our experts are ready to help you</p>
@@ -406,7 +433,6 @@
       <span class="tooltiptext">Promotional offers</span>
     </div>
 
-    <!-- Highlighted Stats Section -->
     <div class="stats">
       <div class="stat-item highlight tooltip">
         <h3>23,950</h3>
@@ -425,7 +451,6 @@
       </div>
     </div>
 
-    <!-- ================= New Premium Investment Plans Section ================= -->
     <div class="premium-investment tooltip">
       <div class="header">
         <h2>INVESTMENT PLANS</h2>
@@ -456,7 +481,6 @@
       <span class="tooltiptext">Various investment options</span>
     </div>
 
-    <!-- Market Data Section -->
     <div class="card tooltip highlight">
       <h2>MARKET PRICES</h2>
       <div class="market-data">
@@ -530,22 +554,14 @@
     </div>
   </div>
 
-  <!-- ================= Footer Section ================= -->
   <footer>
     <p>Opening Hours: Mon to Sat: 9AM to 5PM</p>
     <p>Email: support@gradeoneoption.com</p>
     <p>Copyright © 2015 Grade One Option</p>
   </footer>
 
-  <!-- ================= JavaScript ================= -->
   <script>
-    // Initialize Supabase client
-    const supabase = createClient(
-      process.env.SUPABASE_DATABASE_URL,
-      process.env.PUBLIC_SUPABASE_ANON_KEY
-    );
-
-    // Fetch live crypto prices and additional data from CoinGecko
+    // Fetch live crypto data from CoinGecko to update ticker and market data
     async function fetchCryptoData() {
       try {
         const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,solana,ripple,cardano,polkadot,dogecoin&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true');
@@ -567,8 +583,12 @@
           document.getElementById(coin.priceId).innerText = `$${price}`;
           document.getElementById(coin.changeId).innerText = `${change}%`;
           document.getElementById(coin.changeId).className = change >= 0 ? 'positive' : 'negative';
-          document.getElementById(coin.volId).innerText = data[coin.id].usd_24h_vol ? `$${Number(data[coin.id].usd_24h_vol).toLocaleString()}` : '--';
-          document.getElementById(coin.capId).innerText = data[coin.id].usd_market_cap ? `$${Number(data[coin.id].usd_market_cap).toLocaleString()}` : '--';
+          document.getElementById(coin.volId).innerText = data[coin.id].usd_24h_vol 
+            ? `$${Number(data[coin.id].usd_24h_vol).toLocaleString()}` 
+            : '--';
+          document.getElementById(coin.capId).innerText = data[coin.id].usd_market_cap 
+            ? `$${Number(data[coin.id].usd_market_cap).toLocaleString()}` 
+            : '--';
           tickerText += `${coin.symbol}: $${price} (${change}%)  |  `;
         });
         document.getElementById('ticker-text').textContent = tickerText;
@@ -577,8 +597,10 @@
         console.error("Error fetching crypto data:", error);
       }
     }
+    fetchCryptoData();
+    setInterval(fetchCryptoData, 60000);
 
-    // Simulated notifications
+    // Notification rotation
     function showNotifications() {
       const notifications = [
         "BTC reached a new high!",
@@ -597,42 +619,12 @@
         }, 500);
       }, 10000);
     }
+    showNotifications();
 
-    // Dark Mode Toggle
+    // Dark mode toggle
     document.getElementById('darkModeToggle').addEventListener('click', function() {
       document.body.classList.toggle('dark');
     });
-
-    // Login functionality: Check for admin login first, then regular user login
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const enteredUsername = this.querySelector('input[type="text"]').value;
-      const enteredPassword = this.querySelector('input[type="password"]').value;
-
-      // Admin login check
-      if (enteredUsername === "admin" && enteredPassword === "admin123") {
-        localStorage.setItem("adminAuthenticated", "true");
-        window.location.href = 'edit.html';
-        return;
-      }
-
-      // Regular user check using users array from localStorage
-      const users = JSON.parse(localStorage.getItem('users')) || [];
-      const validUser = users.find(user => 
-        user.username === enteredUsername && 
-        user.password === enteredPassword
-      );
-
-      if (validUser) {
-        alert('Login successful!');
-        window.location.href = 'page1.html';
-      } else {
-        alert('Invalid credentials!');
-      }
-    });
-
-    // Initial fetch and setup
-    fetchCryptoData();
-    setInterval(fetchCryptoData, 60000);
-    showNotifications();
-  </scrip
+  </script>
+</body>
+</html>
