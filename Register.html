@@ -113,7 +113,11 @@
       cursor: pointer;
       transition: background 0.3s ease;
     }
-    button:hover {
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    button:hover:enabled {
       background: #e04350;
     }
     button:focus {
@@ -155,30 +159,6 @@
       }
     }
   </style>
-  <!-- Firebase SDKs (v10.0.0 for consistency) -->
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js"></script>
-  <script>
-    // Firebase Configuration (replace with your actual configuration)
-    const firebaseConfig = {
-      apiKey: "AIzaSyB0yUToVBZCq1DssAn5z_do1ZsOFvbYXys",
-      authDomain: "samuel-f412b.firebaseapp.com",
-      projectId: "samuel-f412b",
-      storageBucket: "samuel-f412b.firebasestorage.app",
-      messagingSenderId: "45562379222",
-      appId: "1:45562379222:web:8017795e7e61099545c277",
-      measurementId: "G-QP9JZ1MWS0",
-      databaseURL: "https://samuel-f412b.firebaseio.com"
-    };
-
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const realtimeDB = firebase.database();
-  </script>
 </head>
 <body>
   <a href="index.html" class="home-button" aria-label="Home">&#x1F3E0; Home</a>
@@ -226,14 +206,39 @@
         <label for="followDirections">I have read and will follow the directions</label>
       </div>
       <div class="form-group">
-        <button type="submit">Register</button>
+        <button type="submit" id="submitButton">Register</button>
       </div>
     </form>
     <!-- Hidden anchor that directs to page1.html -->
     <a id="registrationLink" href="page1.html" style="display:none;">Go to Page1</a>
   </div>
 
-  <script>
+  <!-- Using Firebase v10 modular SDK via module script -->
+  <script type="module">
+    // Import the necessary Firebase functions from the CDN
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+    // Firebase configuration (replace with your actual configuration)
+    const firebaseConfig = {
+      apiKey: "AIzaSyB0yUToVBZCq1DssAn5z_do1ZsOFvbYXys",
+      authDomain: "samuel-f412b.firebaseapp.com",
+      projectId: "samuel-f412b",
+      storageBucket: "samuel-f412b.firebasestorage.app",
+      messagingSenderId: "45562379222",
+      appId: "1:45562379222:web:8017795e7e61099545c277",
+      measurementId: "G-QP9JZ1MWS0",
+      databaseURL: "https://samuel-f412b.firebaseio.com"
+    };
+
+    // Initialize Firebase services
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const realtimeDB = getDatabase(app);
+
     // Password requirements validation
     const passwordInput = document.getElementById('password');
     const requirements = {
@@ -256,6 +261,11 @@
     // Form submission handler
     document.getElementById('registrationForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      // Disable the button to avoid multiple submissions
+      const submitButton = document.getElementById('submitButton');
+      submitButton.disabled = true;
+      
       // Hide any previous error messages
       document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
 
@@ -294,14 +304,17 @@
         alert('Please agree to follow the directions');
         isValid = false;
       }
-      if (!isValid) return;
+      if (!isValid) {
+        submitButton.disabled = false;  // Re-enable if not valid
+        return;
+      }
 
       try {
         // Create user with Firebase Authentication
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
         // Store additional user data in Firestore
-        await db.collection('users').doc(userCredential.user.uid).set({
+        await setDoc(doc(db, "users", userCredential.user.uid), {
           username: username,
           email: email,
           fullName: fullName,
@@ -311,14 +324,11 @@
 
         // Optionally, store a copy in the Realtime Database using full name as a key
         const userIdKey = fullName.toLowerCase().replace(/\s+/g, '_');
-        realtimeDB.ref('users/' + userIdKey).set({
-          name: fullName
-        })
-        .then(() => {
-          alert('Registration successful!');
-          // Programmatically trigger the hidden anchor to navigate to page1.html
-          document.getElementById('registrationLink').click();
-        });
+        await set(ref(realtimeDB, 'users/' + userIdKey), { name: fullName });
+        
+        alert('Registration successful!');
+        // Programmatically trigger navigation to page1.html
+        document.getElementById('registrationLink').click();
       } catch (error) {
         console.error('Registration error:', error);
         let message = 'Registration failed. Please try again.';
@@ -337,6 +347,7 @@
             break;
         }
         alert(message);
+        submitButton.disabled = false;  // Re-enable the button on error
       }
     });
   </script>
