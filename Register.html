@@ -213,9 +213,9 @@
     <a id="registrationLink" href="page1.html" style="display:none;">Go to Page1</a>
   </div>
 
-  <!-- Using Firebase v10 modular SDK via module script -->
+  <!-- Firebase Registration Script using Modular v10 SDK -->
   <script type="module">
-    // Import the necessary Firebase functions from the CDN
+    // Import necessary Firebase functions
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
     import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
@@ -239,8 +239,8 @@
     const db = getFirestore(app);
     const realtimeDB = getDatabase(app);
 
-    // Password requirements validation
-    const passwordInput = document.getElementById('password');
+    // Setup password requirements validation
+    const passwordInput = document.getElementById("password");
     const requirements = {
       length: pw => pw.length >= 8,
       uppercase: pw => /[A-Z]/.test(pw),
@@ -249,105 +249,96 @@
       special: pw => /[!@#$%^&*(),.?":{}|<>]/.test(pw)
     };
 
-    passwordInput.addEventListener('input', () => {
+    passwordInput.addEventListener("input", () => {
       const pw = passwordInput.value;
       Object.entries(requirements).forEach(([id, testFn]) => {
-        const element = document.getElementById(id);
-        element.classList.toggle('requirement-met', testFn(pw));
-        element.classList.toggle('requirement-unmet', !testFn(pw));
+        const el = document.getElementById(id);
+        el.classList.toggle("requirement-met", testFn(pw));
+        el.classList.toggle("requirement-unmet", !testFn(pw));
       });
     });
 
-    // Form submission handler
-    document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+    // Handle registration form submission
+    document.getElementById("registrationForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      
-      // Disable the button to avoid multiple submissions
-      const submitButton = document.getElementById('submitButton');
+      const submitButton = document.getElementById("submitButton");
       submitButton.disabled = true;
-      
-      // Hide any previous error messages
-      document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
 
-      // Gather values
-      const username = document.getElementById('username').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      const fullName = document.getElementById('fullName').value.trim();
-      const checkboxChecked = document.getElementById('followDirections').checked;
+      // Get form values
+      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const fullName = document.getElementById("fullName").value.trim();
+      const agreed = document.getElementById("followDirections").checked;
 
-      let isValid = true;
+      // Hide previous error messages
+      document.querySelectorAll(".error").forEach(el => el.style.display = "none");
 
-      // Validations
+      let valid = true;
       if (!username) {
-        document.getElementById('usernameError').style.display = 'block';
-        isValid = false;
+        document.getElementById("usernameError").style.display = "block";
+        valid = false;
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        document.getElementById('emailError').style.display = 'block';
-        isValid = false;
+        document.getElementById("emailError").style.display = "block";
+        valid = false;
       }
       if (!Object.values(requirements).every(fn => fn(password))) {
-        document.getElementById('passwordError').style.display = 'block';
-        isValid = false;
+        document.getElementById("passwordError").style.display = "block";
+        valid = false;
       }
       if (password !== confirmPassword) {
-        document.getElementById('confirmPasswordError').style.display = 'block';
-        isValid = false;
+        document.getElementById("confirmPasswordError").style.display = "block";
+        valid = false;
       }
       if (!fullName) {
-        document.getElementById('fullNameError').style.display = 'block';
-        isValid = false;
+        document.getElementById("fullNameError").style.display = "block";
+        valid = false;
       }
-      if (!checkboxChecked) {
-        alert('Please agree to follow the directions');
-        isValid = false;
+      if (!agreed) {
+        alert("You must agree to follow the directions.");
+        valid = false;
       }
-      if (!isValid) {
-        submitButton.disabled = false;  // Re-enable if not valid
+      if (!valid) {
+        submitButton.disabled = false;
         return;
       }
 
       try {
-        // Create user with Firebase Authentication
+        // Create user in Firebase Auth
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
 
-        // Store additional user data in Firestore
-        await setDoc(doc(db, "users", userCredential.user.uid), {
-          username: username,
-          email: email,
-          fullName: fullName,
+        // Store additional info in Firestore
+        await setDoc(doc(db, "users", uid), {
+          username,
+          email,
+          fullName,
           registrationDate: new Date().toISOString(),
           verified: false
         });
 
-        // Optionally, store a copy in the Realtime Database using full name as a key
-        const userIdKey = fullName.toLowerCase().replace(/\s+/g, '_');
-        await set(ref(realtimeDB, 'users/' + userIdKey), { name: fullName });
-        
-        alert('Registration successful!');
-        // Programmatically trigger navigation to page1.html
-        document.getElementById('registrationLink').click();
+        // Optionally: Store in Realtime Database using a key based on full name
+        const userKey = fullName.toLowerCase().replace(/\s+/g, "_");
+        await set(ref(realtimeDB, "users/" + userKey), { name: fullName });
+
+        alert("Registration successful!");
+        // Redirect using hidden anchor
+        document.getElementById("registrationLink").click();
       } catch (error) {
-        console.error('Registration error:', error);
-        let message = 'Registration failed. Please try again.';
-        switch (error.code) {
-          case 'auth/email-already-in-use':
-            message = 'Email is already registered';
-            break;
-          case 'auth/weak-password':
-            message = 'Password must be at least 6 characters';
-            break;
-          case 'auth/invalid-email':
-            message = 'Invalid email address';
-            break;
-          case 'auth/operation-not-allowed':
-            message = 'Email/password accounts are not enabled';
-            break;
+        console.error("Registration error:", error);
+        let message = "Registration failed. Please try again.";
+        if (error.code === "auth/email-already-in-use") {
+          message = "Email is already registered.";
+        } else if (error.code === "auth/invalid-email") {
+          message = "Invalid email address.";
+        } else if (error.code === "auth/weak-password") {
+          message = "Password is too weak.";
         }
         alert(message);
-        submitButton.disabled = false;  // Re-enable the button on error
+      } finally {
+        submitButton.disabled = false;
       }
     });
   </script>
