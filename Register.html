@@ -1,342 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Registration Page</title>
-  <style>
-    :root {
-      --primary-color: #3498db;
-      --hover-color: #2980b9;
-      --active-color: #1c5980;
-      --error-color: #ff4b5c;
-      --background: black;
-      --container-bg: rgba(255, 255, 255, 0.1);
-      --input-bg: rgba(255, 255, 255, 0.2);
-      --input-focus-bg: rgba(255, 255, 255, 0.3);
-      --font-family: 'Poppins', sans-serif;
-    }
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: var(--font-family);
-    }
-    body {
-      background: var(--background);
-      color: white;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding-top: 80px;
-      position: relative;
-    }
-    .home-button {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background-color: var(--primary-color);
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
-      text-decoration: none;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      z-index: 1000;
-    }
-    .home-button:hover {
-      background-color: var(--hover-color);
-    }
-    .home-button:active {
-      background-color: var(--active-color);
-    }
-    .home-button:focus {
-      outline: 2px solid var(--primary-color);
-    }
-    .container {
-      background: var(--container-bg);
-      backdrop-filter: blur(10px);
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-    }
-    h1 {
-      margin-bottom: 1.5rem;
-      color: #fff;
-    }
-    .form-group {
-      margin-bottom: 1rem;
-      text-align: left;
-      position: relative;
-    }
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: bold;
-    }
-    input[type="text"],
-    input[type="email"],
-    input[type="password"] {
-      width: 100%;
-      padding: 0.8rem;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      background: var(--input-bg);
-      color: white;
-    }
-    input:focus {
-      outline: none;
-      background: var(--input-focus-bg);
-      box-shadow: 0 0 5px var(--primary-color);
-    }
-    .error {
-      color: var(--error-color);
-      font-size: 0.875rem;
-      margin-top: 0.25rem;
-      display: none;
-    }
-    button {
-      width: 100%;
-      padding: 1rem;
-      background: var(--error-color);
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    button:hover:enabled {
-      background: #e04350;
-    }
-    button:focus {
-      outline: 2px solid var(--primary-color);
-    }
-    .password-requirements {
-      margin: 1rem 0;
-      padding: 0.5rem;
-      background: var(--input-bg);
-      border-radius: 5px;
-      text-align: left;
-    }
-    .password-requirements ul {
-      list-style: none;
-      padding-left: 1rem;
-    }
-    .requirement-met {
-      color: #28a745;
-    }
-    .requirement-unmet {
-      color: var(--error-color);
-    }
-    .checkbox-group {
-      text-align: left;
-      margin-bottom: 1rem;
-    }
-    .checkbox-group label {
-      font-weight: normal;
-      display: inline;
-    }
-    @media (max-width: 480px) {
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registration Page</title>
+    <style>
+      :root {
+        --primary-color: #3498db;
+        --hover-color: #2980b9;
+        --active-color: #1c5980;
+        --error-color: #ff4b5c;
+        --background: #111;
+        --container-bg: rgba(255, 255, 255, 0.1);
+        --input-bg: rgba(255, 255, 255, 0.2);
+        --input-focus-bg: rgba(255, 255, 255, 0.3);
+        --font-family: 'Poppins', sans-serif;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: var(--font-family);
+      }
+      body {
+        background: var(--background);
+        color: white;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
       .container {
-        width: 90%;
-        padding: 1.5rem;
+        background: var(--container-bg);
+        backdrop-filter: blur(10px);
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
       }
-      .home-button {
-        padding: 8px 16px;
-        font-size: 14px;
+      h2 {
+        margin-bottom: 1rem;
       }
-    }
-  </style>
-</head>
-<body>
-  <a href="index.html" class="home-button" aria-label="Home">&#x1F3E0; Home</a>
-  <div class="container">
-    <h1>Create Account</h1>
-    <form id="registrationForm" novalidate>
+      .form-group {
+        margin-bottom: 1rem;
+        text-align: left;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+      }
+      input {
+        width: 100%;
+        padding: 0.8rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        background: var(--input-bg);
+        color: white;
+      }
+      input:focus {
+        outline: none;
+        background: var(--input-focus-bg);
+        box-shadow: 0 0 5px var(--primary-color);
+      }
+      button {
+        width: 100%;
+        padding: 1rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+      button:hover {
+        background: var(--hover-color);
+      }
+      .error {
+        color: var(--error-color);
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Registration Form -->
+    <div class="container" id="registrationContainer">
+      <h2>Create Account</h2>
       <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" required placeholder="Enter your username" />
-        <div class="error" id="usernameError">Username is required</div>
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" placeholder="Enter your full name" required />
+        <div class="error" id="fullNameError"></div>
       </div>
       <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" required placeholder="example@mail.com" />
-        <div class="error" id="emailError">Please enter a valid email</div>
+        <input type="email" id="email" placeholder="example@mail.com" required />
+        <div class="error" id="emailError"></div>
       </div>
       <div class="form-group">
         <label for="password">Password</label>
-        <input type="password" id="password" required placeholder="Enter a secure password" />
-        <div class="error" id="passwordError">Password does not meet requirements</div>
+        <input type="password" id="password" placeholder="Enter a secure password" required />
+        <div class="error" id="passwordError"></div>
       </div>
-      <div class="form-group">
-        <label for="confirmPassword">Confirm Password</label>
-        <input type="password" id="confirmPassword" required placeholder="Re-enter your password" />
-        <div class="error" id="confirmPasswordError">Passwords do not match</div>
-      </div>
-      <!-- Additional Field for Full Name -->
-      <div class="form-group">
-        <label for="fullName">Full Name</label>
-        <input type="text" id="fullName" required placeholder="Enter your full name" />
-        <div class="error" id="fullNameError">Full name is required</div>
-      </div>
-      <div class="password-requirements">
-        <strong>Password Requirements:</strong>
-        <ul>
-          <li id="length" class="requirement-unmet">Minimum 8 characters</li>
-          <li id="uppercase" class="requirement-unmet">At least one uppercase letter</li>
-          <li id="lowercase" class="requirement-unmet">At least one lowercase letter</li>
-          <li id="number" class="requirement-unmet">At least one number</li>
-          <li id="special" class="requirement-unmet">At least one special character</li>
-        </ul>
-      </div>
-      <div class="form-group checkbox-group">
-        <input type="checkbox" id="followDirections" required />
-        <label for="followDirections">I have read and will follow the directions</label>
-      </div>
-      <!-- Anchor wrapping the register button remains -->
-      <a href="page1.html" id="registrationAnchor" style="display: inline-block; text-decoration: none;">
+      <!-- The register button is wrapped in an anchor for consistency.
+           The click event is handled to both save user data and, after success, 
+           redirect to page1.html within the same window -->
+      <a href="page1.html" id="registrationAnchor" style="text-decoration: none;">
         <div class="form-group">
-          <button type="button" id="submitButton">Register</button>
+          <button type="button" id="registerButton">Register</button>
         </div>
       </a>
-    </form>
-  </div>
+    </div>
 
-  <!-- Firebase Registration Script -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+    <!-- Firebase v9.6.1 Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
 
-    // Firebase configuration (ensure these values are correct)
-    const firebaseConfig = {
-      apiKey: "AIzaSyB0yUToVBZCq1DssAn5z_do1ZsOFvbYXys",
-      authDomain: "samuel-f412b.firebaseapp.com",
-      projectId: "samuel-f412b",
-      storageBucket: "samuel-f412b.firebasestorage.app",
-      messagingSenderId: "45562379222",
-      appId: "1:45562379222:web:8017795e7e61099545c277",
-      measurementId: "G-QP9JZ1MWS0",
-      databaseURL: "https://samuel-f412b.firebaseio.com"
-    };
+    <script>
+      // Firebase Configuration (replace with your Firebase project details)
+      const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT.firebaseapp.com",
+        databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT.appspot.com",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+      };
 
-    console.log("Initializing Firebase...");
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const realtimeDB = getDatabase(app);
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
 
-    // Set up live password validation
-    const passwordInput = document.getElementById("password");
-    const requirements = {
-      length: pw => pw.length >= 8,
-      uppercase: pw => /[A-Z]/.test(pw),
-      lowercase: pw => /[a-z]/.test(pw),
-      number: pw => /[0-9]/.test(pw),
-      special: pw => /[!@#$%^&*(),.?":{}|<>]/.test(pw)
-    };
+      // Registration handler
+      document.getElementById("registrationAnchor").addEventListener("click", function(e) {
+        // Prevent default navigation until registration completes successfully
+        e.preventDefault();
 
-    passwordInput.addEventListener("input", () => {
-      const pw = passwordInput.value;
-      Object.entries(requirements).forEach(([id, testFn]) => {
-        const el = document.getElementById(id);
-        if (el) {
-          const passed = testFn(pw);
-          el.classList.toggle("requirement-met", passed);
-          el.classList.toggle("requirement-unmet", !passed);
+        // Disable the button during processing
+        const registerButton = document.getElementById("registerButton");
+        registerButton.disabled = true;
+
+        // Clear previous error messages
+        document.getElementById("fullNameError").textContent = "";
+        document.getElementById("emailError").textContent = "";
+        document.getElementById("passwordError").textContent = "";
+
+        // Grab form values
+        const fullName = document.getElementById("fullName").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+
+        // Simple validation
+        let valid = true;
+        if (fullName === "") {
+          document.getElementById("fullNameError").textContent = "Full name is required.";
+          valid = false;
         }
-      });
-    });
+        if (email === "" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          document.getElementById("emailError").textContent = "A valid email is required.";
+          valid = false;
+        }
+        if (password === "" || password.length < 6) {
+          document.getElementById("passwordError").textContent = "Password must be at least 6 characters.";
+          valid = false;
+        }
 
-    // Attach a click listener on the anchor wrapping the register button
-    const registrationAnchor = document.getElementById("registrationAnchor");
-    registrationAnchor.addEventListener("click", async (e) => {
-      // Prevent the default anchor navigation until all rules are met
-      e.preventDefault();
-      const submitButton = document.getElementById("submitButton");
-      submitButton.disabled = true;
-      
-      // Gather field values
-      const username = document.getElementById("username").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
-      const fullName = document.getElementById("fullName").value.trim();
-      const agreed = document.getElementById("followDirections").checked;
-      
-      // Clear any previous error messages
-      document.querySelectorAll(".error").forEach(el => el.style.display = "none");
-      
-      // Validate all rules
-      let valid = true;
-      if (!username) {
-        document.getElementById("usernameError").style.display = "block";
-        valid = false;
-      }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        document.getElementById("emailError").style.display = "block";
-        valid = false;
-      }
-      if (!Object.values(requirements).every(fn => fn(password))) {
-        document.getElementById("passwordError").style.display = "block";
-        valid = false;
-      }
-      if (password !== confirmPassword) {
-        document.getElementById("confirmPasswordError").style.display = "block";
-        valid = false;
-      }
-      if (!fullName) {
-        document.getElementById("fullNameError").style.display = "block";
-        valid = false;
-      }
-      if (!agreed) {
-        alert("You must agree to follow the directions.");
-        valid = false;
-      }
-      
-      if (!valid) {
-        console.log("Form validation failed");
-        submitButton.disabled = false;
-        return;
-      }
-      
-      try {
-        console.log("Form validated. Saving user data for:", email);
-        // Save data to Firestore
-        await setDoc(doc(db, "users", email), {
-          username,
-          email,
-          fullName,
+        if (!valid) {
+          registerButton.disabled = false;
+          return;
+        }
+
+        // Generate a key-friendly version of the email (you may also use a UID generator)
+        const userKey = email.replace(/[.#$[\]]/g, '_');
+
+        // Save user data in the Realtime Database
+        firebase.database().ref('users/' + userKey).set({
+          fullName: fullName,
+          email: email,
+          password: password, // Note: For production, DO NOT store raw passwords!
           registrationDate: new Date().toISOString()
+        })
+        .then(function() {
+          // Registration successful. Navigate to page1.html in the same window.
+          window.location.href = "page1.html";
+        })
+        .catch(function(error) {
+          alert("Error: " + error.message);
+          registerButton.disabled = false;
         });
-        console.log("User data saved to Firestore.");
-        
-        // Optionally save data to Realtime Database
-        const userKey = fullName.toLowerCase().replace(/\s+/g, "_");
-        await set(ref(realtimeDB, "users/" + userKey), { name: fullName });
-        console.log("User data saved to Realtime Database.");
-        
-        alert("Registration successful!");
-        // Redirect to the page by using the anchor's href value
-        window.location.assign(registrationAnchor.href);
-      } catch (error) {
-        console.error("Registration error:", error);
-        alert("Registration failed. Please try again.");
-      } finally {
-        submitButton.disabled = false;
-      }
-    });
-  </script>
-</body>
+      });
+    </script>
+  </body>
 </html>
